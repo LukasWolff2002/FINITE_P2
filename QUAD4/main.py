@@ -274,7 +274,6 @@ def apply_distributed_force_y(grupo_nodos, fuerza_total_y, estructura):
     # Paso 3: aplicar fuerzas al sistema
     for node in nodos:
         fx, fy = nodal_forces[node.index]
-        print(fy)
         dof_x, dof_y = node.dofs
         #estructura.apply_force(dof_x, fx)
         estructura.apply_force(dof_y, fy)

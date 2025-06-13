@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from scipy.special import roots_legendre
 import matplotlib.patches as patches
 import sympy as sp
+from scipy.sparse import lil_matrix
 x, y = sp.symbols('x y')
 
 class Quad2D:
@@ -227,23 +228,28 @@ class Quad2D:
         A = 0
         nDof=self.nDof
         nDof_element=len(self.node_list)*nDof
-        Ke = np.zeros((nDof_element, nDof_element))
-        fe = np.zeros((nDof_element, 1))
+        Ke = lil_matrix((nDof_element, nDof_element))
+        fe = lil_matrix((nDof_element, 1))
 
+        gamma = self.material.gamma
+        b = b_loadDirection  # evitar hacerlo en cada iteración
+
+        # Cuadratura de Gauss
         for r, weight_r in zip(roots, weights):
             for s, weight_s in zip(roots, weights):
-                
-                b=b_loadDirection
-                
-                B, _, J_det, N = self.calculate_B_matrix(r,s)
-                #print(f'Para r={r} y s={s} el valor de Jdet es={J_det}')
-                A += weight_r * weight_s * np.abs(J_det)
-                Ke += weight_r * weight_s * t * B.T @ self.C @ B * J_det
-                fe += weight_r * weight_s  * N.T @ b * J_det
-        
-        gamma=self.material.gamma
-        fe=fe*(t*gamma)
-        fe=fe.flatten()
+                B, _, J_det, N = self.calculate_B_matrix(r, s)
+
+                factor = weight_r * weight_s * J_det
+
+                # Área acumulada (valor escalar)
+                A += weight_r * weight_s * abs(J_det)
+
+                # Ensamblaje disperso
+                Ke += t * factor * (B.T @ self.C @ B)
+                fe += factor * (N.T @ b)
+
+        # Aplicar densidad de carga y espesor
+        fe *= t * gamma  # sigue siendo matriz dispersa de forma (n,1)
         
         
         return Ke, A, fe

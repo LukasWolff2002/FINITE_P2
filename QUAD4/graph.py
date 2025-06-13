@@ -64,26 +64,23 @@ def plot_all_elements(elements, title, show_ids=True):
     plt.close()
 
 
-import matplotlib.pyplot as plt
-import numpy as np
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 def plot_applied_forces(nodes, elements, title, f_vector, scale=1e-2):
     all_x = []
     all_y = []
 
-    # Recolectar coordenadas de todos los elementos
     for elem in elements:
         coords = np.array([node.coord for node in elem.node_list])
         all_x.extend(coords[:, 0])
         all_y.extend(coords[:, 1])
 
-    # También considerar nodos, por si hay fuerzas fuera del dominio de elementos
     for node in nodes:
         all_x.append(node.coord[0])
         all_y.append(node.coord[1])
 
-    # Calcular límites con márgenes
     x_min, x_max = min(all_x), max(all_x)
     y_min, y_max = min(all_y), max(all_y)
     x_margin = (x_max - x_min) * 0.05
@@ -91,8 +88,7 @@ def plot_applied_forces(nodes, elements, title, f_vector, scale=1e-2):
     x_range = (x_max - x_min) + 2 * x_margin
     y_range = (y_max - y_min) + 2 * y_margin
 
-    # Escalar altura según ancho fijo
-    fixed_width = 8  # pulgadas
+    fixed_width = 8
     aspect_ratio = y_range / x_range
     height = fixed_width * aspect_ratio
 
@@ -106,18 +102,23 @@ def plot_applied_forces(nodes, elements, title, f_vector, scale=1e-2):
     ax.set_aspect('equal', adjustable='box')
     ax.grid(True)
 
-    # Dibujar contorno de los elementos
     for elem in elements:
         coords = np.array([node.coord for node in elem.node_list])
-        coords = np.vstack([coords, coords[0]])  # cerrar polígono
+        coords = np.vstack([coords, coords[0]])
         ax.plot(coords[:, 0], coords[:, 1], color='lightgray', linewidth=1, zorder=1)
 
-    # Dibujar flechas de fuerzas
     for node in nodes:
         x, y = node.coord
         dof_x, dof_y = node.dofs
-        fx = f_vector[dof_x][0] if dof_x < len(f_vector) else 0.0
-        fy = f_vector[dof_y][0] if dof_y < len(f_vector) else 0.0
+
+        fx = f_vector[dof_x, 0] if dof_x < f_vector.shape[0] else 0.0
+        fy = f_vector[dof_y, 0] if dof_y < f_vector.shape[0] else 0.0
+
+        # Convertir a float si es disperso
+        if hasattr(fx, 'toarray'):
+            fx = float(fx.toarray().squeeze())
+        if hasattr(fy, 'toarray'):
+            fy = float(fy.toarray().squeeze())
 
         if not np.isclose(fx, 0.0) or not np.isclose(fy, 0.0):
             ax.quiver(x, y, fx, fy,
