@@ -48,11 +48,11 @@ def make_nodes_groups(output_file, restriccion_x = None, restriccion_y = None, r
             for node_id in line:
                 x, y = mesh.points[node_id][:2]
                 restrain = [0, 0]
-                if restriccion_x is not None and nombre in ["Restriccion X"]:
+                if restriccion_x is not None and nombre in restriccion_x:
                     restrain = [1, 0]
-                if restriccion_y is not None and nombre in ["Restriccion Y"]:
+                if restriccion_y is not None and nombre in restriccion_y:
                     restrain = [0, 1]
-                if restriccion_xy is not None and nombre in ["Restriccion XY"]:
+                if restriccion_xy is not None and nombre in restriccion_xy:
                     restrain = [1, 1]
                 grupos[nombre].append(Node(node_id + 1, [x, y], restrain=restrain))
 
@@ -65,7 +65,7 @@ def make_nodes_groups(output_file, restriccion_x = None, restriccion_y = None, r
 
     # Visualización opcional
     #Node.plot_nodes_por_grupo(grupos, title, show_ids=False, save=False)
-
+    print(grupos)
     return grupos, mesh
 
 def make_sections(grupos, thickness_dict, E, nu, gamma):
@@ -327,20 +327,15 @@ def main(title, mesh_file, self_weight=True):
 
     if self_weight:
         
-        
         # Aplicar peso propio a los elementos
-        #apply_self_weight(elements, rho, estructure)
+        apply_self_weight(elements, rho, estructure)
 
         pass
-
 
     nodos_fuerza = grupos["Fuerza"]
     apply_distributed_force_y(nodos_fuerza, fuerza_total_y=1200000, estructura=estructure)
 
-    
-
     estructure.solve()
-
 
     plot_results(
         estructure,
@@ -356,5 +351,5 @@ def main(title, mesh_file, self_weight=True):
 
 if __name__ == "__main__":
 
-    mesh_file = "GMSH_FILES/geo.msh"
+    mesh_file = "GMSH_FILES/Quad4.msh"
     main(title="Test_Quad4/Resultados", mesh_file=mesh_file, self_weight=True)

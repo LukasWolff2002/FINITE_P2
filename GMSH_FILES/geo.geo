@@ -15,8 +15,8 @@ Line Loop(1) = {1,2,3,4};
 Plane Surface(1) = {1};
 
 // Mallado estructurado
-Transfinite Curve{1, 3} = 200 Using Progression 1;
-Transfinite Curve{2, 4} = 40 Using Progression 1;
+Transfinite Curve{1, 3} = 20 Using Progression 1;
+Transfinite Curve{2, 4} = 4 Using Progression 1;
 Transfinite Surface{1};
 Recombine Surface{1};  // ← importante para tener quads
 
