@@ -47,13 +47,13 @@ class Element:
     def get_B_matrix(self, nodes, xi, eta):
         # Obtener las coordenadas de los nodos
         coords = np.array([[nodes[i - 1].x, nodes[i - 1].y] for i in self.node_ids])  # Coordenadas de nodos
-
+        
         # Derivadas de las funciones de forma
         dN_dxi_func, dN_deta_func = self.shape_function_derivatives(xi, eta)
-
+        
         # Matriz Jacobiana
         J = np.zeros((2, 2))
-        for i in range(self.num_nodes):  
+        for i in range(self.num_nodes):
             J[0, 0] += dN_dxi_func[i](xi, eta) * coords[i, 0]
             J[0, 1] += dN_dxi_func[i](xi, eta) * coords[i, 1]
             J[1, 0] += dN_deta_func[i](xi, eta) * coords[i, 0]

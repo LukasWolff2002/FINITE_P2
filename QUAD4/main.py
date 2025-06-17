@@ -163,7 +163,7 @@ def plot_all_elements(elements, title, show_ids=True):
     ax.set_title("All Quad2D elements")
     ax.grid(True)
 
-    plt.show()
+    plt.savefig(f"GRAFICOS/{title}_elements.png", dpi=300, bbox_inches='tight')
     
 def apply_distributed_force_x(grupo_nodos, fuerza_total_x, estructura):
     """
@@ -321,7 +321,7 @@ def main(title, mesh_file, self_weight=True):
     sections, nodes_dict = make_sections(grupos, thickness_dict=thickness_dict,E=E, nu=nu, gamma=rho)
     elements, used_nodes = make_quad2d_elements(mesh, sections, nodes_dict)
 
-    #plot_all_elements(elements, "All Quad2D elements", show_ids=True)
+    plot_all_elements(elements, title, show_ids=True)
 
     estructure = Solve(used_nodes, elements)
 

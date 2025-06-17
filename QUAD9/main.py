@@ -185,6 +185,64 @@ def apply_self_weight(elements, rho, estructura):
     print(f"✅ Peso total aplicado: {P:.3f} N")
     return P
 
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_all_elements(elements, title, show_ids=True):
+    all_x = []
+    all_y = []
+
+    for elem in elements:
+        coords = elem.xy  # coords.shape = (9, 2)
+        
+        # Solo usar nodos de esquina para el contorno (0, 1, 2, 3, 0)
+        border_nodes = [0, 1, 2, 3, 0]
+        coords_border = np.array([coords[i] for i in border_nodes])
+        
+        all_x.extend(coords_border[:, 0])
+        all_y.extend(coords_border[:, 1])
+
+    # Márgenes y dimensiones
+    x_min, x_max = min(all_x), max(all_x)
+    y_min, y_max = min(all_y), max(all_y)
+    x_margin = (x_max - x_min) * 0.05
+    y_margin = (y_max - y_min) * 0.05
+
+    x_range = (x_max - x_min) + 2 * x_margin
+    y_range = (y_max - y_min) + 2 * y_margin
+
+    fixed_width = 8
+    height = fixed_width * (y_range / x_range)
+
+    fig, ax = plt.subplots(figsize=(fixed_width, height))
+
+    for elem in elements:
+        coords = elem.xy  # coords.shape = (9, 2)
+        
+        # Dibujar contorno con nodos de esquina
+        border_nodes = [0, 1, 2, 3, 0]
+        coords_border = np.array([coords[i] for i in border_nodes])
+        ax.plot(coords_border[:, 0], coords_border[:, 1], 'k-', linewidth=1)
+
+        if show_ids:
+            for nodo, (x, y) in zip(elem.node_list, coords):
+                ax.text(x, y, f'N{nodo.index}', color='black', fontsize=6, ha='center', va='center')
+
+    ax.set_xlim(x_min - x_margin, x_max + x_margin)
+    ax.set_ylim(y_min - y_margin, y_max + y_margin)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title(title)
+    ax.grid(True)
+
+    plt.savefig(f"GRAFICOS/{title}_elements.png", dpi=300, bbox_inches='tight')
+
+
+
+
+    
+
 def main(title, mesh_file, self_weight=True): 
 
 
@@ -192,16 +250,17 @@ def main(title, mesh_file, self_weight=True):
     nu = 0.3
     rho = 7800e-9 # kg/mm³
 
-    thickness_dict = {"1": 200}
+    thickness_dict = {"1": 200, "2": 200, "3": 200, "4": 200}
 
     restriccion_x = None #De otra forma hacer listas
     restriccion_y = None
-    restriccion_xy = ["Restriccion XY"]
+    restriccion_xy = ["Restriccion"]
 
     grupos, mesh = make_nodes_groups(mesh_file, restriccion_x, restriccion_y, restriccion_xy)
     sections, nodes_dict = make_sections(grupos, thickness_dict, E, nu, rho)
     elements, used_nodes = make_quad9_elements(mesh, sections, nodes_dict)
 
+    plot_all_elements(elements, title, show_ids=True)
     estructure = Solve(used_nodes, elements)
 
     if self_weight:
@@ -209,7 +268,7 @@ def main(title, mesh_file, self_weight=True):
         # Aplicar peso propio a los elementos
         apply_self_weight(elements, rho, estructure)
 
-    nodos_fuerza = grupos["Fuerza"]
+    nodos_fuerza = grupos["Fuerza_Y_1"]
     apply_distributed_force(nodos_fuerza, fuerza_total_x=-1200000, estructura=estructure)
 
  
@@ -231,5 +290,5 @@ def main(title, mesh_file, self_weight=True):
 
 if __name__ == "__main__":
 
-    mesh_file = "GMSH_FILES/Quad9.msh"
-    main(title="Test_Quad9/Resultados", mesh_file=mesh_file, self_weight=True)
+    mesh_file = "GMSH_FILES/M1_Q9.msh"
+    main(title="Berni/Resultados", mesh_file=mesh_file, self_weight=True)

@@ -49,7 +49,7 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
     # Crear elementos Quad9
     elements = []
     for cell_block in mesh.cells:
-        if cell_block.type == "quad9":
+        if cell_block.type == "quad9": #Ojjo aqui
             for i, node_ids in enumerate(cell_block.data):
                 # Convertir los nodos de base 0 a base 1
                 node_ids = [int(id) + 1 for id in node_ids]  # +1 para pasar a base 1
@@ -83,7 +83,7 @@ def plot_solution_3d(nodes):
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
-    ax.set_zlabel('Desplazamiento (u)')
+    ax.set_zlabel('Solucion (u)')
 
     ax.legend()
     ax.set_title('Comparación de Soluciones FEM y Analítica')
