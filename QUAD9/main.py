@@ -207,7 +207,7 @@ def main(title, mesh_file, self_weight=True):
     if self_weight:
         
         # Aplicar peso propio a los elementos
-        Peso = apply_self_weight(elements, rho, estructure)
+        apply_self_weight(elements, rho, estructure)
 
     nodos_fuerza = grupos["Fuerza"]
     apply_distributed_force(nodos_fuerza, fuerza_total_x=-1200000, estructura=estructure)
@@ -221,7 +221,7 @@ def main(title, mesh_file, self_weight=True):
         estructure,
         elements,
         title=title,
-        def_scale=1,
+        def_scale=1e2,
         force_scale=1e-4,
         reaction_scale=1e-2,
         sigma_y_tension=250, 

@@ -201,7 +201,7 @@ def plot_deformed_structure(elements, title, scale=1.0, show_ids=False):
 
     tpc = ax.tripcolor(triang, displacements, shading='gouraud', cmap='viridis')
     cb = plt.colorbar(tpc, ax=ax)
-    cb.set_label('Magnitud de desplazamiento [m]')
+    cb.set_label('Magnitud de desplazamiento [mm]')
 
     ax.set_aspect('equal')
     ax.set_title(f"Estructura deformada (×{scale}) - Mapa de calor")
