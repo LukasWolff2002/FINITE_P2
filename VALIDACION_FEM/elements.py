@@ -9,7 +9,7 @@ class Element:
         self.K = None  # Se calculará con get_stiffness_matrix
 
     def shape_functions(self, xi, eta):
-        # Funciones de forma para un elemento cuadrilátero de 9 nodos
+        # Funciones de forma para un elemento cuadrilátero de 9 nodos (Quad9)
         N1 = 0.25 * xi * eta * (xi - 1) * (eta - 1)
         N2 = 0.25 * xi * eta * (xi + 1) * (eta - 1)
         N3 = 0.25 * xi * eta * (xi + 1) * (eta + 1)
@@ -27,23 +27,15 @@ class Element:
 
     def shape_function_derivatives(self, xi, eta):
         # Derivadas de las funciones de forma respecto a xi y eta
-        N = self.shape_functions(xi, eta)
 
         # Las derivadas simbólicas con sympy
         xi, eta = sp.symbols('xi eta')
-        N_sym = np.array([
-            0.25 * xi * eta * (xi - 1) * (eta - 1),
-            0.25 * xi * eta * (xi + 1) * (eta - 1),
-            0.25 * xi * eta * (xi + 1) * (eta + 1),
-            0.25 * xi * eta * (xi - 1) * (eta + 1),
-            0.5 * (1 - xi ** 2) * eta * (eta - 1),
-            0.5 * xi * (xi + 1) * (1 - eta ** 2),
-            0.5 * (1 - xi ** 2) * eta * (eta + 1),
-            0.5 * xi * (xi - 1) * (1 - eta ** 2),
-            (1 - xi ** 2) * (1 - eta ** 2)
-        ])
+        N_sym = self.shape_functions(xi, eta)
 
+        # Derivadas respecto a xi
         dN_dxi = np.array([sp.diff(N_i, xi) for N_i in N_sym])
+        
+        # Derivadas respecto a eta
         dN_deta = np.array([sp.diff(N_i, eta) for N_i in N_sym])
 
         # Convertir de sympy a numpy para la evaluación numérica
@@ -53,10 +45,13 @@ class Element:
         return dN_dxi_func, dN_deta_func
 
     def get_B_matrix(self, nodes, xi, eta):
+        # Obtener las coordenadas de los nodos
         coords = np.array([[nodes[i - 1].x, nodes[i - 1].y] for i in self.node_ids])  # Coordenadas de nodos
-      
+
+        # Derivadas de las funciones de forma
         dN_dxi_func, dN_deta_func = self.shape_function_derivatives(xi, eta)
 
+        # Matriz Jacobiana
         J = np.zeros((2, 2))
         for i in range(self.num_nodes):  
             J[0, 0] += dN_dxi_func[i](xi, eta) * coords[i, 0]
@@ -70,12 +65,20 @@ class Element:
 
         Jinv = np.linalg.inv(J)
 
+        # Derivadas de las funciones de forma en el espacio global
         dN_dx = Jinv[0, 0] * np.array([dN_dxi_func[i](xi, eta) for i in range(self.num_nodes)]) + \
                 Jinv[0, 1] * np.array([dN_deta_func[i](xi, eta) for i in range(self.num_nodes)])
+        
         dN_dy = Jinv[1, 0] * np.array([dN_dxi_func[i](xi, eta) for i in range(self.num_nodes)]) + \
                 Jinv[1, 1] * np.array([dN_deta_func[i](xi, eta) for i in range(self.num_nodes)])
 
-        B = np.vstack((dN_dx, dN_dy))
+        # Formar la matriz B
+        B = np.zeros((3, self.num_nodes * 2))  # 3 filas para los desplazamientos (ux, uy, rotación)
+       
+        B[0, 0::2] = dN_dx
+        B[1, 1::2] = dN_dy
+        B[2, 0::2] = dN_dy
+        B[2, 1::2] = dN_dx
 
         return B, detJ
 
@@ -87,8 +90,10 @@ class Element:
             (1/6, 2/3, 1/6)
         ]
 
-        K = np.zeros((self.num_nodes, self.num_nodes))  # Matriz de rigidez general
+        # Matriz de rigidez global
+        K = np.zeros((self.num_nodes * 2, self.num_nodes * 2))  # Ajustar tamaño según número de nodos
 
+        # Integración numérica
         for xi, eta, w in gauss_points:
             B, detJ = self.get_B_matrix(nodes, xi, eta)
             if detJ == 0:
@@ -97,7 +102,7 @@ class Element:
 
         self.K = K
         return self.K
-
+    
     def get_load_vector(self, nodes, alpha):
         coords = np.array([[nodes[i - 1].x, nodes[i - 1].y] for i in self.node_ids])
 

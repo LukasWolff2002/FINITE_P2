@@ -2,6 +2,7 @@ import gmsh
 import meshio
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from nodes import Node
 from elements import Element
@@ -9,7 +10,6 @@ from solve import Solve
 
 
 def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
-    
     # Leer malla
     mesh = meshio.read(msh_file)
 
@@ -45,8 +45,6 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
             if node.id in id_set:
                 node.boundary_label.append(name)
 
- 
-
     # Crear elementos genéricos (filtrando solo elementos de tipo 'triangle' o 'quad')
     # Crear elementos Quad9
     elements = []
@@ -57,11 +55,44 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
                 node_ids = [int(id) + 1 for id in node_ids]  # +1 para pasar a base 1
                 elements.append(Element(i + 1, node_ids, n_nodes))  # Crear el elemento Quad9
 
-
     return nodes, elements
 
-def main(alpha):   
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
+def plot_solution_3d(nodes):
+    """
+    Esta función plotea la solución FEM y la solución analítica en 3D usando los nodos.
+    La solución analítica es node.u y la solución FEM es node.u_fem.
+    """
+    # Extraer las coordenadas y las soluciones de desplazamiento para X, Y, Z
+    x_coords = [node.x for node in nodes]
+    y_coords = [node.y for node in nodes]
+    z_fem = [node.u_fem for node in nodes]  # Solución FEM
+    z_analytical = [node.u for node in nodes]  # Solución analítica
+
+    # Configurar la figura para la visualización 3D
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Graficar la solución FEM
+    ax.scatter(x_coords, y_coords, z_fem, c='b', marker='o', label='Solución FEM')
+
+    # Graficar la solución analítica
+    ax.scatter(x_coords, y_coords, z_analytical, c='r', marker='^', label='Solución Analítica')
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Desplazamiento (u)')
+
+    ax.legend()
+    ax.set_title('Comparación de Soluciones FEM y Analítica')
+
+    plt.show()
+
+
+
+def main(alpha):   
     Estructure = None
     nodes = None
     elements = None
@@ -69,29 +100,32 @@ def main(alpha):
     geo_file = "GMSH_FILES/validacion_fem.geo"
     mesh_file = "GMSH_FILES/validacion_fem.msh"
 
-    #Genero la malla
+    # Genero la malla
     nodes, elements = fixed_load_mesh_objects(geo_file=geo_file, msh_file=mesh_file, n_nodes=9)
 
-
-    #Obtengo la solucion numerica por nodo
+    # Obtengo la solución numérica por nodo
     for node in nodes:
         node.solve_u(alpha)
 
-    #Resuelvo la estructura
+    # Resuelvo la estructura
     Estructure = Solve(nodes, elements, alpha)
-
     Estructure.solve_matrix()
 
-    #errores = error(nodes)
+    # Solución analítica
     solucion_analitica = Estructure.semi_norm_H1_0(alpha)
+
     print(f"Solución analítica: {solucion_analitica}")
+
+    # Solución FEM
     solucion_fem = Estructure.femm_solution()
     print(f"Solución FEM: {solucion_fem}")
 
     error = np.abs(solucion_analitica - solucion_fem)
 
-    # Guardar en .txt
+    # Graficar las soluciones
+    plot_solution_3d(nodes)  # Llamada a la función de graficado
 
+    # Guardar en .txt
     with open("VALIDACION_FEM/resultados.txt", "a") as f:
         f.write(f"N = {1}, R = {2}, alpha = {alpha}\n")
         f.write(f"Error: {error:.6e}\n")
@@ -99,20 +133,9 @@ def main(alpha):
 
     print("Resultados guardados en resultados.txt")
 
-    
 
 if __name__ == "__main__":
-
     open("VALIDACION_FEM/resultados.txt", "w").close()
-    alpha = 5
+    alpha = 3
     
     main(alpha)
-   
-       
-        
-    
-
-    
-    
-    
-    

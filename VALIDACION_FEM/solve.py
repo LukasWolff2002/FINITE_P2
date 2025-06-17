@@ -62,7 +62,7 @@ class Solve:
         # Identificar grados de libertad fijos por las condiciones de frontera
         for node in self.nodes:
             if hasattr(node, "boundary_label") and any("Dirichlet" in label for label in node.boundary_label):
-                print(f"🔒 Nodo {node.id} tiene condición de Dirichlet: {node.u}")
+                #print(f"🔒 Nodo {node.id} tiene condición de Dirichlet: {node.u}")
                 fixed_dofs.append(node.id - 1)  # Convertir a índice base-0
                 fixed_values.append(node.u)
 

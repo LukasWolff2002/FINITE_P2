@@ -77,6 +77,7 @@ class Quad9:
 
     def calculate_B_matrix(self, zeta, eta):
         N, dNnatural = self.calculate_interpolation_functions(zeta, eta)
+        
         J = dNnatural @ self.xy
         J_det = np.linalg.det(J)
 
