@@ -1,4 +1,8 @@
 import numpy as np
+import sympy as sp
+
+# Definimos las variables simbólicas
+xi, eta = sp.symbols('xi eta')
 
 # Funciones de forma para un elemento cuadrilátero de 9 nodos (Quad9)
 def N1(xi, eta):
@@ -27,6 +31,25 @@ def N8(xi, eta):
 
 def N9(xi, eta):
     return (1 - xi ** 2) * (1 - eta ** 2)
+
+# Función para calcular derivadas algebraicas
+def calculate_derivatives():
+    N_funcs = [N1(xi, eta), N2(xi, eta), N3(xi, eta), N4(xi, eta),
+               N5(xi, eta), N6(xi, eta), N7(xi, eta), N8(xi, eta), N9(xi, eta)]
+    
+    # Derivadas respecto a xi (zeta)
+    dN_dxi = [sp.diff(N, xi) for N in N_funcs]
+    
+    # Derivadas respecto a eta
+    dN_deta = [sp.diff(N, eta) for N in N_funcs]
+
+    print("Derivadas respecto a xi (zeta):")
+    for i, dN in enumerate(dN_dxi):
+        print(f"dN{i + 1}/dξ = {dN}")
+    
+    print("\nDerivadas respecto a eta:")
+    for i, dN in enumerate(dN_deta):
+        print(f"dN{i + 1}/dη = {dN}")
 
 # Coordenadas de los nodos en el plano (xi, eta)
 node_coords = {
@@ -72,3 +95,6 @@ def validate_all_shape_functions():
 
 # Llamar a la función para validar las funciones de forma para todos los nodos
 validate_all_shape_functions()
+
+# Llamar a la función para calcular las derivadas simbólicas de las funciones de forma
+calculate_derivatives()
