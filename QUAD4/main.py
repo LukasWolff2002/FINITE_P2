@@ -65,7 +65,7 @@ def make_nodes_groups(output_file, restriccion_x = None, restriccion_y = None, r
 
     # Visualización opcional
     #Node.plot_nodes_por_grupo(grupos, title, show_ids=False, save=False)
-    print(grupos)
+
     return grupos, mesh
 
 def make_sections(grupos, thickness_dict, E, nu, gamma):
@@ -333,7 +333,7 @@ def main(title, mesh_file, self_weight=True):
         pass
 
     nodos_fuerza = grupos["Fuerza"]
-    apply_distributed_force_y(nodos_fuerza, fuerza_total_y=1200000, estructura=estructure)
+    #apply_distributed_force_y(nodos_fuerza, fuerza_total_y=1200000, estructura=estructure)
 
     estructure.solve()
 

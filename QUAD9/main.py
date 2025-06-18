@@ -121,7 +121,7 @@ def make_quad9_elements(mesh, sections, nodes_dict):
 
     return elements, list(used_nodes)
 
-def apply_distributed_force(grupo_nodos, fuerza_total_x, estructura):
+def apply_distributed_force_x(grupo_nodos, fuerza_total_x, estructura):
     nodos = grupo_nodos
     n = len(nodos)
     if n < 2:
@@ -159,6 +159,46 @@ def apply_distributed_force(grupo_nodos, fuerza_total_x, estructura):
         dof_x, dof_y = node.dofs
         estructura.apply_force(dof_x, fx)
         estructura.apply_force(dof_y, 0.0)
+        #print(f"Nodo {node.index} ← Fx = {fx:.3f} N, Fy = 0.000 N, coordenadas y = {node.coord[1]:.3f}")
+
+def apply_distributed_force_y(grupo_nodos, fuerza_total_y, estructura):
+    nodos = grupo_nodos
+    n = len(nodos)
+    if n < 2:
+        print("Se requieren al menos dos nodos para aplicar fuerza distribuida.")
+        return
+
+    # Calcular posiciones acumuladas según distancia entre nodos (longitud sobre la curva)
+    posiciones = [0.0]
+    for i in range(1, n):
+        dx = nodos[i].coord[0] - nodos[i-1].coord[0]
+        dy = nodos[i].coord[1] - nodos[i-1].coord[1]
+        distancia = np.sqrt(dx**2 + dy**2)
+        posiciones.append(posiciones[-1] + distancia)
+    total_longitud = posiciones[-1]
+
+    # Inicializar fuerzas nodales
+    nodal_forces = {}
+
+    # Aplicar fuerza proporcional al tramo entre posiciones adyacentes
+    for i in range(n):
+        if i == 0:
+            # Primer nodo: mitad de la diferencia con siguiente nodo
+            fuerza = (posiciones[1] - posiciones[0]) / total_longitud * fuerza_total_y * 0.5
+        elif i == n-1:
+            # Último nodo: mitad de la diferencia con nodo anterior
+            fuerza = (posiciones[-1] - posiciones[-2]) / total_longitud * fuerza_total_y * 0.5
+        else:
+            # Nodo interno: mitad de tramo anterior + mitad de tramo siguiente
+            fuerza = ((posiciones[i] - posiciones[i-1]) + (posiciones[i+1] - posiciones[i])) / total_longitud * fuerza_total_y * 0.5
+        nodal_forces[nodos[i].index] = fuerza
+
+    # Aplicar fuerzas en X
+    for node in nodos:
+        fy = nodal_forces[node.index]
+        dof_x, dof_y = node.dofs
+        estructura.apply_force(dof_y, fy)
+        estructura.apply_force(dof_x, 0.0)
         #print(f"Nodo {node.index} ← Fx = {fx:.3f} N, Fy = 0.000 N, coordenadas y = {node.coord[1]:.3f}")
 
 def apply_self_weight(elements, rho, estructura):
@@ -250,11 +290,11 @@ def main(title, mesh_file, self_weight=True):
     nu = 0.3
     rho = 7800e-9 # kg/mm³
 
-    thickness_dict = {"1": 200, "2": 200, "3": 200, "4": 200}
+    thickness_dict = {"1": 200} 
 
     restriccion_x = None #De otra forma hacer listas
     restriccion_y = None
-    restriccion_xy = ["Restriccion"]
+    restriccion_xy = ["Restriccion XY"]
 
     grupos, mesh = make_nodes_groups(mesh_file, restriccion_x, restriccion_y, restriccion_xy)
     sections, nodes_dict = make_sections(grupos, thickness_dict, E, nu, rho)
@@ -268,10 +308,8 @@ def main(title, mesh_file, self_weight=True):
         # Aplicar peso propio a los elementos
         apply_self_weight(elements, rho, estructure)
 
-    nodos_fuerza = grupos["Fuerza_Y_1"]
-    apply_distributed_force(nodos_fuerza, fuerza_total_x=-1200000, estructura=estructure)
-
- 
+    nodos_fuerza = grupos["Fuerza"]
+    apply_distributed_force_y(nodos_fuerza, fuerza_total_y=-1200000, estructura=estructure)
 
     desplazamientos = estructure.solve()
 
@@ -280,8 +318,8 @@ def main(title, mesh_file, self_weight=True):
         estructure,
         elements,
         title=title,
-        def_scale=1e2,
-        force_scale=1e-4,
+        def_scale=1,
+        force_scale=1e-2,
         reaction_scale=1e-2,
         sigma_y_tension=250, 
         sigma_y_compression=250
@@ -290,5 +328,5 @@ def main(title, mesh_file, self_weight=True):
 
 if __name__ == "__main__":
 
-    mesh_file = "GMSH_FILES/M1_Q9.msh"
-    main(title="Berni/Resultados", mesh_file=mesh_file, self_weight=True)
+    mesh_file = "GMSH_FILES/Quad9.msh"
+    main(title="Test_Quad9/Resultados", mesh_file=mesh_file, self_weight=True)
