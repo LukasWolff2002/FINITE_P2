@@ -8,7 +8,7 @@ from nodes import Node
 from elements import Element
 from solve import Solve
 
-
+"""
 def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
     # Leer malla
     mesh = meshio.read(msh_file)
@@ -43,6 +43,7 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
         node.boundary_label = []
         for name, id_set in boundary_nodes.items():
             if node.id in id_set:
+                print(name)
                 node.boundary_label.append(name)
 
     # Crear elementos genéricos (filtrando solo elementos de tipo 'triangle' o 'quad')
@@ -56,6 +57,49 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
                 elements.append(Element(i + 1, node_ids, n_nodes))  # Crear el elemento Quad9
 
     return nodes, elements
+"""
+def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
+    nodes = []
+    node = Node(1, 0, 0)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(2, 1, 0)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(3, 1, 1)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(4, 0, 1)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(5, 0.5, 0)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(6, 1, 0.5)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(7, 0.5, 1)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(8, 0, 0.5)  # Nodo de ejemplo
+    node.boundary_label.append("Dirichlet")
+    nodes.append(node)
+    node = Node(9, 0.5, 0.5)  # Nodo de ejemplo
+    
+    nodes.append(node)
+
+    elements = []
+
+    # Crear elementos Quad9
+    elem = Element(1, [1, 2, 3, 4, 5, 6, 7, 8, 9], n_nodes)
+    elements.append(elem)
+    
+    
+
+
+    
+    return nodes, elements
+
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D

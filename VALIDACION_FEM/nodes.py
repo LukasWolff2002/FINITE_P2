@@ -6,7 +6,7 @@ class Node:
         self.y = y
         self.u = 0.0  # Inicializar u en 0.0
         self.u_fem = 0.0
-        self.boundary_label = None
+        self.boundary_label = []
 
     def solve_u (self, alpha):
         # Método para calcular u basado en la posición del nodo

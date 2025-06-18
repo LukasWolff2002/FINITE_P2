@@ -97,4 +97,4 @@ def validate_all_shape_functions():
 validate_all_shape_functions()
 
 # Llamar a la función para calcular las derivadas simbólicas de las funciones de forma
-calculate_derivatives()
+#calculate_derivatives()
