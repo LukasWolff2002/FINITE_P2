@@ -88,7 +88,7 @@ def plot_solution_3d(nodes):
     ax.legend()
     ax.set_title('Comparación de Soluciones FEM y Analítica')
 
-    plt.show()
+    plt.savefig("GRAFICOS/Validacion_FEM/solucion_comparativa.png")
 
 
 
