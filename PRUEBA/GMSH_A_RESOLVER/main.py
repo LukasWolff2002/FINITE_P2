@@ -44,21 +44,21 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=4):
         node.boundary_label = []
         for name, id_set in boundary_nodes.items():
             if node.id in id_set:
-                print(name)
+              
                 node.boundary_label.append(name)
 
     # Crear elementos genéricos (filtrando solo elementos de tipo 'triangle' o 'quad')
     # Crear elementos Quad9
     elements = []
     for cell_block in mesh.cells:
-        print(f"Tipo de celda: {cell_block.type}")
+        
         if cell_block.type == "quad": #Ojjo aqui
             for i, node_ids in enumerate(cell_block.data):
                 # Convertir los nodos de base 0 a base 1
                 node_ids = [int(id) + 1 for id in node_ids]  # +1 para pasar a base 1
                 elements.append(Element(i + 1, node_ids, n_nodes))  # Crear el elemento Quad9
 
-    print(elements)
+    
     return nodes, elements
 
 def plot_solution_3d(nodes):

@@ -162,13 +162,6 @@ def main(alpha):
     # Graficar las soluciones
     plot_solution_3d(nodes)  # Llamada a la función de graficado
 
-    # Guardar en .txt
-    with open("VALIDACION_FEM/resultados.txt", "a") as f:
-        f.write(f"N = {1}, R = {2}, alpha = {alpha}\n")
-        f.write(f"Error: {error:.6e}\n")
-        f.write("-" * 40 + "\n")
-
-    print("Resultados guardados en resultados.txt")
 
 
 if __name__ == "__main__":

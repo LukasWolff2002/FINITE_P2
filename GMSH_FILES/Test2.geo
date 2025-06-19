@@ -17,19 +17,25 @@ Line(4) = {4, 5};  // Línea recta entre puntos 4 y 5
 Line(5) = {5, 1};  // Línea recta entre puntos 5 y 1
 
 
+Physical Line("Dirichlet 1") = {4};
+Physical Line("Dirichlet 2") = {5};
+Physical Line("Dirichlet 3") = {1};
+Physical Line("Dirichlet 4") = {2};
+Physical Line("Dirichlet 5") = {6};
+
 // Crear un arco (círculo que conecta el punto 4 y 3 con centro en 6)
 Circle(6) = {4, 6, 3};  // Círculo que conecta 4, 6 (centro), y 3
-
-// Definir el número de divisiones en cada línea (usando transfinite en las líneas rectas)
-Transfinite Curve {1, 2, 3, 4, 5} = 30 Using Progression 1.1;  // Dividir las líneas rectas en 30 segmentos
-Transfinite Curve {6} = 30 Using Progression 1.1;  // Dividir el arco en 30 segmentos
 
 // Crear un Loop cerrado y la superficie
 Line Loop(1) = {1, 2, -6, 4, 5};  // Usamos las líneas para crear un loop cerrado, incluyendo el arco
 Plane Surface(1) = {1};  // Definir la superficie cerrada (triangular)
+
 //+
-Transfinite Curve {1} = 5 ;
-Transfinite Curve {2} = 5 ;
-Transfinite Curve {4} = 2 ;
-Transfinite Curve {5} = 6 ;
-Transfinite Curve {6} = 4 ;
+Transfinite Curve {1} = 3 ;
+Transfinite Curve {2} = 3 ;
+Transfinite Curve {4} = 0 ;
+Transfinite Curve {5} = 3 ;
+Transfinite Curve {6} = 3 ;
+
+Physical Surface("Superficie") = {1};
+
