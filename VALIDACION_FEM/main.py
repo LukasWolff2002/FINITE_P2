@@ -58,47 +58,69 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
 
     return nodes, elements
 """
-def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=9):
-    nodes = []
-    node = Node(1, 0, 0)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(2, 1, 0)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(3, 1, 1)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(4, 0, 1)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(5, 0.5, 0)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(6, 1, 0.5)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(7, 0.5, 1)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(8, 0, 0.5)  # Nodo de ejemplo
-    node.boundary_label.append("Dirichlet")
-    nodes.append(node)
-    node = Node(9, 0.5, 0.5)  # Nodo de ejemplo
-    
-    nodes.append(node)
 
+
+def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=7):
+    nodes = []
+    # Coordenadas en rejilla 3x3 para subdividir el cuadrado [0,1]x[0,1]
+    # y nodos intermedios
+    coords = [
+        # Esquinas (vértices)
+        (1, 0.0, 0.0),   # A
+        (2, 0.5, 0.0),   # B
+        (3, 1.0, 0.0),   # C
+        (4, 0.0, 0.5),   # D
+        (5, 0.5, 0.5),   # E (centro total)
+        (6, 1.0, 0.5),   # F
+        (7, 0.0, 1.0),   # G
+        (8, 0.5, 1.0),   # H
+        (9, 1.0, 1.0),   # I
+
+        # Bordes medios por elemento
+        (10, 0.25, 0.0),   # AB medio
+        (11, 0.75, 0.0),   # BC medio
+        (12, 0.75, 0.5),   # CF medio
+        (13, 0.75, 1.0),   # FI medio
+        (14, 0.25, 1.0),   # GH medio
+        (15, 0.25, 0.5),   # AD medio
+        (16, 0.25, 0.75),  # DH medio
+        (17, 0.75, 0.25),  # BE medio
+        (18, 0.25, 0.25),  # AE medio
+        (19, 0.75, 0.75),  # HI medio
+        (20, 0.5, 0.25),   # centro abajo
+        (21, 0.5, 0.75),   # centro arriba
+        (22, 0.25, 0.5),   # centro izq
+        (23, 0.75, 0.5),   # centro der
+        (24, 0.5, 0.5),    # centro total (repetido como 5)
+    ]
+
+    # Crear nodos
+    added_ids = set()
+    for nid, x, y in coords:
+        if nid not in added_ids:
+            node = Node(nid, x, y)
+            if x in [0.0, 1.0] or y in [0.0, 1.0]:
+                node.boundary_label.append("Dirichlet")
+            nodes.append(node)
+            added_ids.add(nid)
+
+    # Crear elementos Quad7: [N1, N2, N3, N4, N5, N6, N7]
     elements = []
 
-    # Crear elementos Quad9
-    elem = Element(1, [1, 2, 3, 4, 5, 6, 7, 8, 9], n_nodes)
-    elements.append(elem)
-    
-    
+    # Elemento 1: inferior izquierdo
+    elements.append(Element(1, [1, 2, 5, 4, 10, 15, 18], n_nodes))
 
+    # Elemento 2: inferior derecho
+    elements.append(Element(2, [2, 3, 6, 5, 11, 17, 20], n_nodes))
 
-    
+    # Elemento 3: superior derecho
+    elements.append(Element(3, [5, 6, 9, 8, 12, 13, 19], n_nodes))
+
+    # Elemento 4: superior izquierdo
+    elements.append(Element(4, [4, 5, 8, 7, 22, 14, 21], n_nodes))
+
     return nodes, elements
+
 
 
 import matplotlib.pyplot as plt
@@ -145,7 +167,7 @@ def main(alpha):
     mesh_file = "GMSH_FILES/validacion_fem.msh"
 
     # Genero la malla
-    nodes, elements = fixed_load_mesh_objects(geo_file=geo_file, msh_file=mesh_file, n_nodes=9)
+    nodes, elements = fixed_load_mesh_objects(geo_file=geo_file, msh_file=mesh_file, n_nodes=7)
 
     # Obtengo la solución numérica por nodo
     for node in nodes:

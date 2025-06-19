@@ -20,18 +20,17 @@ class Element:
 
     def shape_functions(self, xi, eta):
         # Funciones de forma para un elemento cuadrilátero de 9 nodos (Quad9)
-        N1 = 0.25 * xi * eta * (xi - 1) * (eta - 1)
-        N2 = 0.25 * xi * eta * (xi + 1) * (eta - 1)
-        N3 = 0.25 * xi * eta * (xi + 1) * (eta + 1)
-        N4 = 0.25 * xi * eta * (xi - 1) * (eta + 1)
-        N5 = 0.5 * (1 - xi ** 2) * eta * (eta - 1)
-        N6 = 0.5 * xi * (xi + 1) * (1 - eta ** 2)
-        N7 = 0.5 * (1 - xi ** 2) * eta * (eta + 1)
-        N8 = 0.5 * xi * (xi - 1) * (1 - eta ** 2)
-        N9 = (1 - xi ** 2) * (1 - eta ** 2)
+        N1 = xi*(-eta*xi + eta + xi - 1)/4
+        N2 = xi*(-eta*xi - eta + xi + 1)/4
+        N3 = xi*(eta*xi + eta + xi + 1)/4
+        N4 = xi*(eta*xi - eta + xi - 1)/4
+        N5 = eta**2/2 + eta*xi**2/2 - eta/2 - xi**2/2
+        N6 = eta**2/2 - eta*xi**2/2 + eta/2 - xi**2/2
+        N7 = 1 - eta**2
+       
 
         # Generar la lista de funciones de forma
-        return np.array([N1, N2, N3, N4, N5, N6, N7, N8, N9])
+        return np.array([N1, N2, N3, N4, N5, N6, N7])
         
 
     def shape_function_derivatives(self, xi, eta):
@@ -55,7 +54,7 @@ class Element:
 
     def get_B_matrix(self, nodes, xi, eta):
         coords = np.array([[nodes[i - 1].x, nodes[i - 1].y] for i in self.node_ids])
-
+        
         dN_dxi_func, dN_deta_func = self.shape_function_derivatives(xi, eta)
 
         J = np.zeros((2, 2))
