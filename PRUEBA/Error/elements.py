@@ -75,7 +75,7 @@ class Element:
                 Jinv[1, 1] * np.array([dN_deta_func[i](xi, eta) for i in range(self.num_nodes)])
 
         B = np.vstack([dN_dx, dN_dy])  # 2 x num_nodes
-
+        
         return B, detJ
 
 
@@ -94,7 +94,7 @@ class Element:
             B, detJ = self.get_B_matrix(nodes, xi, eta)
             if detJ == 0:
                 continue
-            print(detJ)
+            
             K += w * detJ * (B.T @ B)
 
 
