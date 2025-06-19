@@ -12,18 +12,18 @@ class Element:
         L3 = eta
 
         dN_dxi = np.array([
-            -0.333,          # ∂N1/∂xi
-            -2*L3,           # ∂N2/∂xi
-            4*L3+1.333,                  # ∂N3/∂xi
-            -2*L3-1       # ∂N4/∂xi
+            -1,          # ∂N1/∂xi
+            1-2*L3,           # ∂N2/∂xi
+            4*L3,                  # ∂N3/∂xi
+            -2*L3       # ∂N4/∂xi
             
         ])
 
         dN_deta = np.array([
-            -0.333,          # ∂N1/∂eta
-            -2*L2-1,                  # ∂N2/∂eta
-            4*L2+1.333,           # ∂N3/∂eta
-            -2*L2           # ∂N4/∂eta
+            -1,          # ∂N1/∂eta
+            -2*L2,                  # ∂N2/∂eta
+            4*L2,           # ∂N3/∂eta
+            1-2*L2           # ∂N4/∂eta
            
         ])
 

@@ -8,7 +8,7 @@ monomios = [sp.S(1), xi, eta, xi * eta]
 
 # Coordenadas de los 7 nodos: 4 vértices y 3 centros de borde (ajusta si es necesario)
 nodos = [
-    (-1, -1),  # N1
+    (0, 0),  # N1
     ( 1, 0),  # N2
     ( 0.5,  0.5),  # N3
     (0,  1),  # N4
