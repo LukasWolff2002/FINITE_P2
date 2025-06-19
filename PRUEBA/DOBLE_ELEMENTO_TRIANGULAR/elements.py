@@ -41,7 +41,7 @@ class Element:
             J[1, 1] += dN_deta[i] * coords[i, 1]
 
         detJ = np.linalg.det(J)
-        print(detJ)
+        
         if abs(detJ) < 1e-12:
             return np.zeros((2, 4)), 0.0
 

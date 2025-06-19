@@ -70,6 +70,7 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=7):
         (2, 1.0, 0.0),   # B
         (3, 0.5, 0.5),   # C
         (4, 0.0, 1),   # D
+        (5, 1.0, 1.0),   # E
        
     ]
 
@@ -88,6 +89,7 @@ def fixed_load_mesh_objects(geo_file="geo.geo", msh_file="mesh.msh", n_nodes=7):
 
     # Elemento 1: inferior izquierdo
     elements.append(Element(1, [1, 2, 3, 4]))
+    elements.append(Element(2, [2, 5, 4, 3]))
 
    
     return nodes, elements
